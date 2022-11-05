@@ -17,6 +17,46 @@ class CollocationService {
     return collocation
   }
 
+  static async edit (props: {
+    UserId:         number
+    CollocationId:  number
+    body:           string
+    meaning:        string
+    association:    string
+    transription:   string
+    lastRepeat:     Date
+    examples:       string[]
+    tags:           number[]
+  }) {
+
+    const {
+      UserId,
+      CollocationId,
+      examples,
+      tags,
+      ...changes
+    } = props
+
+    const examplesJSON  = JSON.stringify(examples)
+    const tagsJSON      = JSON.stringify(tags)
+
+    const result = Boolean(
+      await Collocation.update({
+        examplesJSON,
+        tagsJSON,
+        ...changes
+      }, {
+        where: {
+          UserId,
+          id: CollocationId,
+        },
+        returning: true
+      })
+    )
+
+    return result
+  }
+
   static async add(props: { UserId: number, LanguageId: number, body: string }) {
     const {
       UserId,
@@ -61,7 +101,30 @@ class CollocationService {
     }
   }
 
-  static async find(UserId: number, props: {
+  static parseQueriesToFind (props: {
+    UserId?:     string,
+    LanguageId?: string,
+    body?:      string,
+    sorting?:   string,
+    tags?:      string,
+    page?:      string,
+    limit?:     string,
+  }) {
+    const result = {
+      UserId: +props.UserId,
+      LanguageId: +props.LanguageId,
+      body: props.body,
+      sorting: props.sorting,
+      tags: JSON.parse(props.tags) as number[],
+      page: +props.page,
+      limit: +props.limit,
+    }
+
+    return result
+  }
+
+  static async find(props: {
+    UserId: number
     LanguageId?: number
     body?: string
     limit?: number
@@ -70,6 +133,7 @@ class CollocationService {
     sorting?: string
   }) {
     const {
+      UserId,
       LanguageId,
       body,
       tags,
@@ -83,6 +147,7 @@ class CollocationService {
     const options: any = {
       where: {
         UserId,
+        LanguageId,
         // [Op.or]: [
         //   Sequelize.where(
         //     Sequelize.fn('lower', Sequelize.col('body')),
@@ -99,8 +164,6 @@ class CollocationService {
         // ]
       }
     }
-
-    LanguageId && Object.assign(options.where, { LanguageId })
 
     if ( body ) {
       const param = [
@@ -122,10 +185,11 @@ class CollocationService {
     }
 
     if ( tags && tags.length ) {
-        const param =  {
-          [Op.or]: tags.map(t => { return { [Op.like]: `%${t}%` } })
-        }
-      options.where.tags = param
+      const param =  {
+        [Op.or]: tags.map(t => { return { [Op.like]: `%${t}%` } })
+      }
+
+      options.where.tagsJSON = param
     }
 
     if ( sorting ) {
@@ -163,7 +227,7 @@ class CollocationService {
       Object.assign(options, { offset })
     }
 
-    return await Collocation.findAll(options)
+    return await Collocation.findAndCountAll(options)
   }
 
   static async findOne(props: { UserId: number, LanguageId: number, body: string }) {

@@ -13,7 +13,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare updatedAt:            CreationOptional<Date>
 }
 
-export interface UserPutAttributes extends Partial<Pick<User, "username" | "lastSelectedLanguage" | "isFullAccess" | "addedCount" | "repeatCount">> {}
+export interface IUserPutAttributes extends Partial<Pick<User, "username" | "lastSelectedLanguage" | "isFullAccess" | "addedCount" | "repeatCount">> {}
 
 User.init({
   id: {

@@ -20,6 +20,12 @@ class Collocation extends Model<InferAttributes<Collocation>, InferCreationAttri
   declare updatedAt:      CreationOptional<Date>
 }
 
+export interface ICollocationPutAttributes extends Partial<Pick<Collocation, "association" | "body" | "meaning" | "lastRepeat" | "transcription">> {
+  examples:   string
+  tags:       string
+
+}
+
 Collocation.init({
   id: {
     primaryKey: true,

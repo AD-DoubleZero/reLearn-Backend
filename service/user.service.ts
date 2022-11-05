@@ -35,9 +35,7 @@ class UserService {
   }
 
   static async getLanguage(id: number) {
-    const { lastSelectedLanguage } = await this.findOne(id)
-
-    const LanguageId = lastSelectedLanguage || 1
+    const LanguageId = (await this.findOne(id)).lastSelectedLanguage || 1
 
     return await LanguageService.findOne(LanguageId)
   }
@@ -49,9 +47,9 @@ class UserService {
       return true
     }
 
-    const collocations = await CollocationService.find(id, { limit: COLLOCATION_ACCOUNT_LIMIT })
+    const collocations = await CollocationService.find({ UserId: id, limit: COLLOCATION_ACCOUNT_LIMIT })
 
-    if (collocations.length < COLLOCATION_ACCOUNT_LIMIT) {
+    if (collocations.rows.length < COLLOCATION_ACCOUNT_LIMIT) {
       return true
     }
 

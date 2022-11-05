@@ -18,6 +18,14 @@ class Cluster extends Model<InferAttributes<Cluster>, InferCreationAttributes<Cl
   declare updatedAt:        CreationOptional<Date>
 }
 
+export interface IClusterPutOptions extends Pick<Cluster,
+  "level"             |
+  "collocationsJSON"  |
+  "isSaved"           |
+  "isReadyForMerge"   |
+  "repeatCount"
+> {}
+
 Cluster.init({
   id: {
     primaryKey: true,

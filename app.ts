@@ -21,7 +21,7 @@ app.use(cors({
 
 app.use(express.json())
 
-app.use(telegramAuthMiddleware)
+// app.use(telegramAuthMiddleware)
 
 app.use("/api", router)
 
